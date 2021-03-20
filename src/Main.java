@@ -14,20 +14,39 @@ public class Main {
                 StringBuilder tmp = new StringBuilder();
 
                 // Индекс последней открывающей скобки
-                int lastOpenedBracket = sb.lastIndexOf("[");
+                int openBracket = sb.lastIndexOf("[");
                 // Индекс закрывающейся скобки для предыдущей открывающейся
-                int closedBracket = sb.indexOf("]", lastOpenedBracket);
+                int closedBracket = sb.indexOf("]", openBracket);
                 // Индекс числа
-                int numIndex = lastOpenedBracket - 1;
+                int numIndex = openBracket - 1;
                 // Значение числа
-                int num = Integer.parseInt(sb.substring(numIndex, lastOpenedBracket));
+                int num = Integer.parseInt(sb.substring(numIndex, openBracket));
+
+
+                int capacity = 0;
+                int j = 0;
+                while (numIndex - j >= 0) {
+                    if (Character.isDigit(sb.charAt(numIndex - j))) {
+                        capacity++;
+                    } else break;
+                    j++;
+                }
+
+                StringBuilder numTmp = new StringBuilder();
+                int k = 0;
+                while (k < capacity) {
+                    String strTmp = Character.toString(sb.charAt(numIndex - k));
+                    k++;
+                    numTmp.append(strTmp);
+                }
+                num = Integer.parseInt(numTmp.toString());
 
                 // Прогоняемся по части с числом и строкой внутри скобок и раскрываем должным образом
                 for (int i = 0; i < num; i++) {
-                    tmp.append(sb.substring(lastOpenedBracket + 1, closedBracket));
+                    tmp.append(sb.substring(openBracket + 1, closedBracket));
                 }
                 // В поданной строке, учитывая индексы, меняем нужную часть строки на нужную распакованную
-                sb.replace(numIndex, closedBracket + 1, tmp.toString());
+                sb.replace(numIndex - capacity + 1, closedBracket + 1, tmp.toString());
             }
             System.out.println(sb.toString());
         }
