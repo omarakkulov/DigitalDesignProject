@@ -4,62 +4,56 @@ import java.io.InputStreamReader;
 
 public class Main {
     public static void main(String[] args) throws IOException {
+        // Читаем строку из консоли
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String consoleStr = reader.readLine();
 
+        // Смотрим удовлетворяет ли условиям наша строка
         if (Control.isCorrect(consoleStr)) {
             StringBuilder sb = new StringBuilder(consoleStr);
 
+            // Пока в нашем стрингбилдере есть скобки для парсинга содержимого внутри них
             while (sb.toString().contains("[")) {
-                StringBuilder tmp = new StringBuilder();
+                StringBuilder sbForDigits = new StringBuilder();
+                StringBuilder sbForResult = new StringBuilder();
 
-                // Индекс последней открывающей скобки
+                // Индекс последней открытой скобки
                 int openBracket = sb.lastIndexOf("[");
-                // Индекс закрывающейся скобки для предыдущей открывающейся
-                int closedBracket = sb.indexOf("]", openBracket);
+                // Индекс закрывающейся скобки для открывающейся предыдущей
+                int lockedBracket = sb.indexOf("]", openBracket);
+
+                // Само значение числа
+                int digit;
+                // Счетчик
+                int i = 1;
                 // Индекс числа
-                int numIndex = openBracket - 1;
-                // Значение числа
-                int num = Integer.parseInt(sb.substring(numIndex, openBracket));
-
-
-                int capacity = 0;
-                int j = 0;
-                while (numIndex - j >= 0) {
-                    if (Character.isDigit(sb.charAt(numIndex - j))) {
-                        capacity++;
-                    } else break;
-                    j++;
+                int digitIndex;
+                while (true) {
+                    digitIndex = openBracket - i;
+                    // Пока элемент из sb под индексом digitIndex является числом, то
+                    if (Character.isDigit(sb.charAt(digitIndex))) {
+                        sbForDigits.insert(0, sb.charAt(openBracket - i));
+                        i++;
+                        if (digitIndex == 0) {
+                            break;
+                        }
+                    } else {
+                        digitIndex++;
+                        break;
+                    }
                 }
+                digit = Integer.parseInt(sbForDigits.toString());
 
-                StringBuilder numTmp = new StringBuilder();
-                int k = 0;
-                while (k < capacity) {
-                    String strTmp = Character.toString(sb.charAt(numIndex - k));
-                    k++;
-                    numTmp.append(strTmp);
+                // В цикле пробегаемся по строке внутри квадратных скобок ровно столько раз, чему равно число
+                // между этими скобками
+                for (int j = 0; j < digit; j++) {
+                    sbForResult.append(sb.substring(openBracket + 1, lockedBracket));
                 }
-                num = Integer.parseInt(numTmp.toString());
-
-                // Прогоняемся по части с числом и строкой внутри скобок и раскрываем должным образом
-                for (int i = 0; i < num; i++) {
-                    tmp.append(sb.substring(openBracket + 1, closedBracket));
-                }
-                // В поданной строке, учитывая индексы, меняем нужную часть строки на нужную распакованную
-                sb.replace(numIndex - capacity + 1, closedBracket + 1, tmp.toString());
+                // Далее меняем значение внутри скобок основного стрингбилдера на то, что есть внутри sbForResult
+                sb.replace(digitIndex, lockedBracket + 1, sbForResult.toString());
             }
+            // Выводим результат
             System.out.println(sb.toString());
         }
-    }
-
-    public static boolean isDigit(int numIndex, int lastOpenedBracket, StringBuilder sb) {
-        int res;
-
-        try {
-            res = Integer.parseInt(sb.substring(numIndex, lastOpenedBracket));
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
     }
 }
